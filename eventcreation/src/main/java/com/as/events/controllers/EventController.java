@@ -37,7 +37,6 @@ public class EventController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }

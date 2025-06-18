@@ -4,6 +4,7 @@ import com.as.authservice.dtos.RegisterRequestDTO;
 import com.as.authservice.dtos.UserRequestDTO;
 import com.as.authservice.dtos.UserResponseDTO;
 import com.as.authservice.entity.User;
+import com.as.authservice.enums.Role;
 import com.as.authservice.exceptions.InvalidDataException;
 import com.as.authservice.exceptions.ResourceNotFoundException;
 import com.as.authservice.repository.UserRepository;
@@ -33,13 +34,14 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(encoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role(request.getRole() != null ? request.getRole() : Role.USER)
                 .build();
         repository.save(user);
 
         String jwt = jwtService.generateToken(user.getEmail(), user.getRole().name());
         return new UserResponseDTO(user.getEmail() ,jwt);
     }
+
 
     public UserResponseDTO login(UserRequestDTO request) {
         User user = repository.findByEmail(request.getEmail())
