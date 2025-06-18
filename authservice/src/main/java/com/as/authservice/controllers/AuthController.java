@@ -2,6 +2,7 @@ package com.as.authservice.controllers;
 
 
 import com.as.authservice.dtos.*;
+import com.as.authservice.entity.User;
 import com.as.authservice.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UserResponseDTO> login(@RequestBody UserRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @GetMapping("/users/{email}")
+    public ResponseEntity<User> login(@PathVariable("email")String email) {
+        return ResponseEntity.ok(authService.getUser(String email));
     }
 }
 

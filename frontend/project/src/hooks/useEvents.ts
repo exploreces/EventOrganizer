@@ -8,6 +8,7 @@ interface Event {
   eventType: string;
   startDate: string;
   endDate: string;
+  image?: string;
 }
 
 interface Registration {
@@ -17,9 +18,18 @@ interface Registration {
   userEmail: string;
 }
 
+interface Feedback {
+  id?: number;
+  eventId: number;
+  stars: number;
+  message: string;
+  userEmail?: string;
+}
+
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
   useEffect(() => {
     fetchEvents();
@@ -52,21 +62,65 @@ export const useEvents = () => {
       console.error('Error registering for event:', err);
     }
   };
-  const submitFeedback = async (feedback: {
-    eventId: number;
-    stars: number;
-    message: string;
-  }) => {
-    await api.post('/api/feedbacks', feedback, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+
+  // ✅ CRUD: Create feedback
+  const submitFeedback = async (feedback: Feedback) => {
+    try {
+      const res = await api.post('/api/feedbacks', feedback);
+      return res.data;
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+    }
+  };
+
+  // ✅ CRUD: Update feedback
+  const updateFeedback = async (id: number, feedback: Feedback) => {
+    try {
+      const res = await api.put(`/api/feedbacks/${id}`, feedback);
+      return res.data;
+    } catch (err) {
+      console.error('Error updating feedback:', err);
+    }
+  };
+
+  // ✅ CRUD: Delete feedback
+  const deleteFeedback = async (id: number) => {
+    try {
+      await api.delete(`/api/feedbacks/${id}`);
+    } catch (err) {
+      console.error('Error deleting feedback:', err);
+    }
+  };
+
+  // ✅ Read: Get all feedbacks
+  const fetchAllFeedbacks = async () => {
+    try {
+      const res = await api.get('/api/feedbacks');
+      setFeedbacks(res.data);
+    } catch (err) {
+      console.error('Error fetching all feedbacks:', err);
+    }
+  };
+
+  // ✅ Read: Get feedbacks for specific event
+  const fetchFeedbacksByEvent = async (eventId: number) => {
+    try {
+      const res = await api.get(`/api/feedbacks/event/${eventId}`);
+      return res.data;
+    } catch (err) {
+      console.error('Error fetching feedbacks for event:', err);
+    }
   };
 
   return {
     events,
     registrations,
+    feedbacks,
     registerForEvent,
+    submitFeedback,
+    updateFeedback,
+    deleteFeedback,
+    fetchAllFeedbacks,
+    fetchFeedbacksByEvent,
   };
 };
