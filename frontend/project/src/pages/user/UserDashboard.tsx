@@ -119,7 +119,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
 
       {/* Dashboard */}
       {(!activeTab || activeTab === 'dashboard') && (
-        <div className="flex flex-col items-center justify-center h-full p-16 text-center bg-gradient-to-br from-pink-70 via-white to-blue-50 rounded-xl shadow-inner">
+        <div className="flex flex-col items-center justify-center h-full p-16 text-center bg-gradient-to-br from-black-50 via-white to-blue-50 rounded-xl shadow-inner">
           <img
             src="https://i.pinimg.com/originals/cf/6f/cf/cf6fcf14be2cd01dd4923b36445ca632.gif"
             alt="EventHub Welcome"

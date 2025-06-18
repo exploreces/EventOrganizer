@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
+     window.location.href = "/";
   }, []);
 
   useEffect(() => {
