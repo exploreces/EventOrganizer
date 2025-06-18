@@ -27,7 +27,7 @@ public class AuthController {
 
     @GetMapping("/users/{email}")
     public ResponseEntity<User> login(@PathVariable("email")String email) {
-        return ResponseEntity.ok(authService.getUser(String email));
+        return ResponseEntity.ok(authService.getUser(email));
     }
 }
 

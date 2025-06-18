@@ -54,4 +54,9 @@ public class AuthService {
         String jwt = jwtService.generateToken(user.getEmail(), user.getRole().name());
         return new UserResponseDTO(user.getEmail(), jwt);
     }
+
+    public User getUser(String email) {
+        User user = repository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User does not exist"));
+        return user;
+    }
 }
