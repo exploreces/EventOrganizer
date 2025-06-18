@@ -52,6 +52,17 @@ export const useEvents = () => {
       console.error('Error registering for event:', err);
     }
   };
+  const submitFeedback = async (feedback: {
+    eventId: number;
+    stars: number;
+    message: string;
+  }) => {
+    await api.post('/api/feedbacks', feedback, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  };
 
   return {
     events,

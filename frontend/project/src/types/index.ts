@@ -2,26 +2,18 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'manager';
   avatar?: string;
   createdAt: string;
 }
 
 export interface Event {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  date: string;
-  time: string;
-  location: string;
-  category: string;
-  maxAttendees: number;
-  currentAttendees: number;
-  price: number;
-  image: string;
-  organizer: string;
-  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
-  createdAt: string;
+  eventType: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Registration {
@@ -44,20 +36,19 @@ export interface Feedback {
 export interface Budget {
   id: string;
   eventId: string;
-  category: string;
-  budgeted: number;
-  actual: number;
   description: string;
+  cost: number;
 }
 
-export interface AIPlanning {
-  eventType: string;
-  budget: number;
-  attendees: number;
-  suggestions: {
-    venue: string[];
-    catering: string[];
-    entertainment: string[];
-    timeline: string[];
-  };
+export interface BudgetStatus {
+  assignedBudget: number;
+  totalSpent: number;
+  difference: number;
+}
+
+export interface PlannerNote {
+  title: string;
+  note: string;
+  eventId: string;
+  createdBy: string;
 }

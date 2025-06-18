@@ -31,7 +31,7 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER' , 'USER')")
     public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.getEventById(id));
     }
