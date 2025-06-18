@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/feedback")
+@RequestMapping("/api/feedbacks")
 @RequiredArgsConstructor
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
-    private final JwtService JwtUtil;
+    private final JwtService jwtService;
 
     @PostMapping
     public ResponseEntity<FeedbackResponseDTO> submitFeedback(
             @RequestBody FeedbackRequestDTO dto,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("Authorization") String jwtToken) {
 
-        String email = JwtUtil.extractEmail(authHeader);
+        String email = jwtService.extractEmail(jwtToken.substring(7));
         return ResponseEntity.ok(feedbackService.submitFeedback(dto, email));
     }
 
@@ -34,7 +34,7 @@ public class FeedbackController {
             @RequestBody FeedbackRequestDTO dto,
             @RequestHeader("Authorization") String authHeader) {
 
-        String email = JwtUtil.extractEmail(authHeader);
+        String email = jwtService.extractEmail(authHeader.substring(7));
         return ResponseEntity.ok(feedbackService.updateFeedback(id, dto, email));
     }
 
