@@ -33,4 +33,8 @@ export const updateFeedback = (id: number, data: { eventId: number; stars: numbe
 export const deleteFeedback = (id: number) =>
   api.delete(`/api/feedbacks/${id}`);
 
+ export const getUserByEmail = (email: string) =>
+   api.get(`/api/users/${email}`);
+
+
 export default api;

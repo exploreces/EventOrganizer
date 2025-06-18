@@ -1,8 +1,9 @@
-// imports ...
 import React, { useState, useEffect } from 'react';
 import { Calendar, Star } from 'lucide-react';
 import { useEvents } from '../../hooks/useEvents';
 import { useAuth } from '../../contexts/AuthContext';
+import { getUserByEmail } from '../../utils/api';
+import { parseJwt } from '../../utils/jwtUtils';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/Dialog';
@@ -10,8 +11,9 @@ import { Textarea } from '../../components/ui/Textarea';
 
 export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { events, registrations, registerForEvent, submitFeedback, fetchFeedbacksByEvent } = useEvents();
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
 
+  const [user, setUser] = useState<any | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackStars, setFeedbackStars] = useState(0);
   const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -20,6 +22,9 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
   const [eventFeedbacks, setEventFeedbacks] = useState<any[]>([]);
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString());
 
+  const defaultImage = 'https://www.shutterstock.com/image-photo/hands-typing-on-laptop-programming-600nw-2480023489.jpg';
+  const profileImage = 'https://via.placeholder.com/150';
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString());
@@ -27,9 +32,24 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch user profile info
+  useEffect(() => {
+    if (activeTab === 'profile') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decoded = parseJwt(token);
+        const email = decoded?.sub || decoded?.email;
+        if (email) {
+          getUserByEmail(email).then(res => {
+            setUser(res.data);
+          });
+        }
+      }
+    }
+  }, [activeTab]);
+
   const registeredEventIds = new Set(registrations.map(r => r.eventId));
   const registeredEvents = events.filter(e => registeredEventIds.has(e.id));
-  const defaultImage = 'https://www.shutterstock.com/image-photo/hands-typing-on-laptop-programming-600nw-2480023489.jpg';
 
   const handleFeedbackOpen = (eventId: number) => {
     setSelectedEventId(eventId);
@@ -40,11 +60,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
 
   const handleFeedbackSubmit = () => {
     if (selectedEventId == null || feedbackStars === 0) return;
-    submitFeedback({
-      eventId: selectedEventId,
-      stars: feedbackStars,
-      message: feedbackMessage,
-    });
+    submitFeedback({ eventId: selectedEventId, stars: feedbackStars, message: feedbackMessage });
     setShowFeedbackModal(false);
   };
 
@@ -73,11 +89,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
                 />
               ))}
             </div>
-            <Textarea
-              placeholder="Write your feedback here..."
-              value={feedbackMessage}
-              onChange={e => setFeedbackMessage(e.target.value)}
-            />
+            <Textarea placeholder="Write your feedback here..." value={feedbackMessage} onChange={e => setFeedbackMessage(e.target.value)} />
           </div>
           <DialogFooter>
             <Button onClick={handleFeedbackSubmit}>Submit</Button>
@@ -98,7 +110,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
               <p className="text-gray-700">{viewDetailsEvent.description}</p>
               <p className="text-sm"><strong>Type:</strong> {viewDetailsEvent.eventType}</p>
               <p className="text-sm">
-                <strong>Dates:</strong> {new Date(viewDetailsEvent.startDate).toLocaleDateString()} &ndash; {new Date(viewDetailsEvent.endDate).toLocaleDateString()}
+                <strong>Dates:</strong> {new Date(viewDetailsEvent.startDate).toLocaleDateString()} – {new Date(viewDetailsEvent.endDate).toLocaleDateString()}
               </p>
             </div>
           )}
@@ -114,7 +126,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
             className="w-[300px] h-auto mb-6 drop-shadow-xl rounded-lg"
           />
           <h2 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-2 animate-fade-in">
-            Hi {user?.name?.split(' ')[0]} 👋
+            Hi {authUser?.name?.split(' ')[0]} 👋
           </h2>
           <p className="text-lg text-gray-700 mb-4 animate-fade-in-slow">Welcome to your Event Dashboard</p>
           <div className="text-3xl font-mono text-gray-800 animate-fade-in-slow">🕒 {time}</div>
@@ -124,7 +136,8 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
         </div>
       )}
 
-{activeTab === 'events' && (
+      {/* Events */}
+      {activeTab === 'events' && (
         <section>
           <h2 className="text-3xl font-bold mb-6">All Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -140,8 +153,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{event.name}</h3>
                     <p className="text-sm text-gray-600 line-clamp-2 mb-2">{event.description}</p>
                     <div className="text-sm text-gray-600 mb-4">
-                      <strong>Date:</strong> {new Date(event.startDate).toLocaleDateString()} &ndash;{' '}
-                      {new Date(event.endDate).toLocaleDateString()}
+                      <strong>Date:</strong> {new Date(event.startDate).toLocaleDateString()} – {new Date(event.endDate).toLocaleDateString()}
                     </div>
                     <div className="flex space-x-2">
                       <Button className="flex-1" disabled={isRegistered} onClick={() => registerForEvent(event.id)}>
@@ -159,8 +171,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
         </section>
       )}
 
-
-      {/* My Registered Events */}
+      {/* My Events */}
       {activeTab === 'my-events' && (
         <section>
           <h2 className="text-3xl font-bold mb-6">My Registered Events</h2>
@@ -172,7 +183,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
                   <CardContent className="p-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{event.name}</h3>
                     <div className="text-sm text-gray-600 space-y-1 mb-2">
-                      <div>{new Date(event.startDate).toLocaleDateString()} &ndash; {new Date(event.endDate).toLocaleDateString()}</div>
+                      <div>{new Date(event.startDate).toLocaleDateString()} – {new Date(event.endDate).toLocaleDateString()}</div>
                     </div>
                     <Button variant="outline" className="w-full" onClick={() => setViewDetailsEvent(event)}>
                       View Details
@@ -190,7 +201,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
         </section>
       )}
 
-      {/* Feedback Exploration */}
+      {/* Feedback Tab */}
       {activeTab === 'feedback' && (
         <section>
           <h2 className="text-3xl font-bold mb-6">Explore Feedbacks</h2>
@@ -229,7 +240,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
       )}
 
       {/* Profile */}
-      {activeTab === 'profile' && (
+      {activeTab === 'profile' && user && (
         <section>
           <h2 className="text-3xl font-bold mb-4">Profile</h2>
           <Card className="max-w-xl">
@@ -237,11 +248,15 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
               <h3 className="text-xl font-semibold text-gray-900">Account Info</h3>
             </CardHeader>
             <CardContent className="space-y-4">
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover"
+              />
               <div>
-                <p><strong>Name:</strong> {user?.name}</p>
-                <p><strong>Email:</strong> {user?.email}</p>
-                <p><strong>Role:</strong> {user?.role}</p>
-                <p><strong>Member Since:</strong> {new Date(user?.createdAt || '').toLocaleDateString()}</p>
+                <p><strong>Name:</strong> {user.name}</p>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Role:</strong> {user.role}</p>
               </div>
             </CardContent>
           </Card>
