@@ -8,7 +8,8 @@ public class EventcreationApplication {
 
 	/*
 		todo : create,get,update,delete - event, done
-		todo : budget planning , notes + planner
+		todo : budget planning , notes + planner done
+		todo : planner with AI
 	 */
 
 	public static void main(String[] args) {
