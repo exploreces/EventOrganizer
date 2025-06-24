@@ -8,7 +8,7 @@ public class EventcreationApplication {
 
 	/*
 		todo : create,get,update,delete - event, done
-		todo : budget planning , notes + planner done
+		todo : budget planning , notes + planner done partially
 		todo : planner with AI
 	 */
 

@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 
-interface Event {
+
+export type EventType = 'CLUB' | 'CONFERENCE' | 'WORKSHOP' | 'SEMINAR' | 'TRAINING' | 'OTHER';
+
+export interface Event {
   id: number;
   name: string;
   description: string;
-  eventType: string;
+  eventType: EventType;
   startDate: string;
   endDate: string;
   image?: string;
 }
+
 
 interface Registration {
   id: number;
@@ -63,7 +67,63 @@ export const useEvents = () => {
     }
   };
 
-  // ✅ CRUD: Create feedback
+  const createEvent = async (eventData: Omit<Event, 'id'>) => {
+    try {
+      // Ensure eventType is uppercase to match backend enum
+      const createData = {
+        ...eventData,
+        eventType: eventData.eventType.toUpperCase()
+      };
+      const res = await api.post('/api/events', createData);
+      await fetchEvents();
+      return res.data;
+    } catch (err) {
+      console.error('Error creating event:', err);
+    }
+  };
+
+  const updateEvent = async (id: number, eventData: Partial<Event>) => {
+    try {
+      // Clean and format the data
+      const updateData = {
+        ...eventData,
+        id,
+        // Ensure dates are in ISO format
+        startDate: eventData.startDate ? new Date(eventData.startDate).toISOString() : undefined,
+        endDate: eventData.endDate ? new Date(eventData.endDate).toISOString() : undefined,
+        // Ensure eventType is uppercase to match backend enum
+        eventType: eventData.eventType ? eventData.eventType.toUpperCase() : undefined,
+      };
+
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
+
+      console.log('Sending update data:', updateData);
+      const res = await api.put(`/api/events/${id}`, updateData);
+      await fetchEvents();
+      return res.data;
+    } catch (err) {
+      console.error('Error updating event:', err);
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+        console.error('Response status:', err.response.status);
+      }
+    }
+  };
+
+  const deleteEvent = async (id: number) => {
+    try {
+      await api.delete(`/api/events/${id}`);
+      await fetchEvents();
+    } catch (err) {
+      console.error('Error deleting event:', err);
+    }
+  };
+
   const submitFeedback = async (feedback: Feedback) => {
     try {
       const res = await api.post('/api/feedbacks', feedback);
@@ -73,7 +133,6 @@ export const useEvents = () => {
     }
   };
 
-  // ✅ CRUD: Update feedback
   const updateFeedback = async (id: number, feedback: Feedback) => {
     try {
       const res = await api.put(`/api/feedbacks/${id}`, feedback);
@@ -83,7 +142,6 @@ export const useEvents = () => {
     }
   };
 
-  // ✅ CRUD: Delete feedback
   const deleteFeedback = async (id: number) => {
     try {
       await api.delete(`/api/feedbacks/${id}`);
@@ -92,7 +150,6 @@ export const useEvents = () => {
     }
   };
 
-  // ✅ Read: Get all feedbacks
   const fetchAllFeedbacks = async () => {
     try {
       const res = await api.get('/api/feedbacks');
@@ -102,7 +159,6 @@ export const useEvents = () => {
     }
   };
 
-  // ✅ Read: Get feedbacks for specific event
   const fetchFeedbacksByEvent = async (eventId: number) => {
     try {
       const res = await api.get(`/api/feedbacks/event/${eventId}`);
@@ -122,5 +178,8 @@ export const useEvents = () => {
     deleteFeedback,
     fetchAllFeedbacks,
     fetchFeedbacksByEvent,
+    createEvent,
+    updateEvent,
+    deleteEvent,
   };
 };
