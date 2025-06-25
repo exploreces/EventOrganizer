@@ -38,4 +38,5 @@ public class RegistrationController {
     public ResponseEntity<Integer> getEventRegistrationsCount(@PathVariable Long eventId) {
         return ResponseEntity.ok(registrationService.getRegistrationsCountForEvent(eventId));
     }
+
 }

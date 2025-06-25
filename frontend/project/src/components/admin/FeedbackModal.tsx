@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
 import { getFeedbacksByEvent, deleteFeedback } from '../../utils/api';
 
 interface Feedback {
@@ -49,19 +48,20 @@ export const FeedbackModal: React.FC<Props> = ({ eventId, isOpen, onClose }) => 
   };
 
   const renderStars = (rating: number) => {
+    const fiveStarRating = Math.round(rating / 2);
     return (
       <div className="flex items-center space-x-1">
-        {[...Array(10)].map((_, i) => (
-          <div
+        {[...Array(5)].map((_, i) => (
+          <svg
             key={i}
-            className={`w-3 h-3 rounded-full ${
-              i < rating
-                ? 'bg-gradient-to-r from-rose-300 to-pink-300'
-                : 'bg-slate-200'
-            }`}
-          />
+            className={`w-4 h-4 ${i < fiveStarRating ? 'text-yellow-400' : 'text-slate-300'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
         ))}
-        <span className="ml-2 text-sm font-medium text-slate-600">{rating}/10</span>
+        <span className="ml-2 text-sm font-medium text-slate-600">{fiveStarRating}/5</span>
       </div>
     );
   };
@@ -69,16 +69,8 @@ export const FeedbackModal: React.FC<Props> = ({ eventId, isOpen, onClose }) => 
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          leave="ease-in duration-200"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-gradient-to-br from-purple-100/50 to-pink-100/50 backdrop-blur-sm" />
+        <Transition.Child as={Fragment} enter="ease-out duration-300" leave="ease-in duration-200" enterFrom="opacity-0" enterTo="opacity-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -92,98 +84,62 @@ export const FeedbackModal: React.FC<Props> = ({ eventId, isOpen, onClose }) => 
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-3xl bg-gradient-to-br from-white to-blue-50/30 p-8 shadow-2xl border border-purple-100/50 backdrop-blur-sm transition-all">
-                <div className="mb-6">
-                  <Dialog.Title className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                    ✨ Event Feedbacks
-                  </Dialog.Title>
-                  <div className="h-1 w-16 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full"></div>
+              <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-3xl bg-white/40 backdrop-blur-2xl p-8 shadow-xl border border-white/30 transition-all">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-bold mb-1 text-center bg-gradient-to-r from-orange-500 to-pink-500 text-transparent bg-clip-text">
+                    💬 Event Feedback
+                  </h2>
+                  <p className="text-center text-slate-600">Read what participants said about the event</p>
                 </div>
 
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-400 animate-spin"></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-300 to-pink-300 animate-pulse"></div>
-                      </div>
-                    </div>
+                  <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin w-10 h-10 border-4 border-slate-200 border-t-purple-400 rounded-full" />
                   </div>
                 ) : feedbacks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-200 to-orange-200 flex items-center justify-center">
-                      <span className="text-3xl">💭</span>
-                    </div>
-                    <p className="text-slate-500 text-lg font-medium">No feedbacks available for this event yet.</p>
-                    <p className="text-slate-400 text-sm mt-2">Check back later for participant responses!</p>
+                  <div className="text-center py-10 bg-white/50 rounded-2xl border-2 border-dashed border-purple-200">
+                    <p className="text-xl text-gray-500 font-medium">No feedbacks yet 💭</p>
+                    <p className="text-gray-400 mt-2">Be the first to share your thoughts!</p>
                   </div>
                 ) : (
-                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {feedbacks.map((fb, index) => (
+                  <div className="grid gap-6 md:grid-cols-2 max-h-[60vh] overflow-y-auto pr-2">
+                    {feedbacks.map(fb => (
                       <div
                         key={fb.id}
-                        className={`relative overflow-hidden rounded-2xl p-6 shadow-lg border transition-all hover:shadow-xl hover:scale-[1.02] ${
-                          index % 3 === 0
-                            ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200/50'
-                            : index % 3 === 1
-                            ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200/50'
-                            : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                        }`}
+                        className="bg-white/70 backdrop-blur-md border border-purple-100 p-6 rounded-3xl shadow-lg hover:shadow-xl transition transform hover:scale-105 group"
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1 space-y-3">
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
-                                index % 3 === 0
-                                  ? 'bg-gradient-to-r from-blue-400 to-indigo-400'
-                                  : index % 3 === 1
-                                  ? 'bg-gradient-to-r from-purple-400 to-pink-400'
-                                  : 'bg-gradient-to-r from-green-400 to-emerald-400'
-                              }`}>
-                                {fb.userEmail.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="font-medium text-slate-700">{fb.userEmail}</p>
-                                <p className="text-xs text-slate-500">Participant</p>
-                              </div>
+                        <div className="flex justify-between items-center mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 text-white rounded-full flex items-center justify-center font-semibold shadow-md">
+                              {fb.userEmail.charAt(0).toUpperCase()}
                             </div>
-
-                            <div className="space-y-2">
-                              <div>
-                                <p className="text-sm font-medium text-slate-600 mb-1">Rating</p>
-                                {renderStars(fb.stars)}
-                              </div>
-
-                              {fb.message && (
-                                <div>
-                                  <p className="text-sm font-medium text-slate-600 mb-1">Message</p>
-                                  <p className="text-slate-700 bg-white/60 p-3 rounded-xl border border-white/50 leading-relaxed">
-                                    "{fb.message}"
-                                  </p>
-                                </div>
-                              )}
-                            </div>
+                            <span className="font-semibold text-slate-800">{fb.userEmail}</span>
                           </div>
-
                           <button
                             onClick={() => handleDelete(fb.id)}
-                            className="ml-4 p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-500 hover:text-red-600 transition-all hover:scale-110 group"
-                            title="Delete feedback"
+                            className="opacity-0 group-hover:opacity-100 transition-all hover:scale-110 p-2 text-red-500 bg-red-50 rounded-full hover:bg-red-100"
                           >
-                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            🗑️
                           </button>
+                        </div>
+
+                        <div className="mb-2">{renderStars(fb.stars)}</div>
+
+                        <div
+                          className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-gray-700 italic text-sm leading-relaxed shadow-inner max-w-[90%] mx-auto"
+                          style={{ fontFamily: "'Playfair Display', serif" }}
+                        >
+                          {fb.message || 'No message provided.'}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 text-right">
                   <button
                     onClick={onClose}
-                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200"
+                    className="px-6 py-2.5 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 font-medium rounded-xl hover:from-slate-200 hover:to-slate-300 transition focus:outline-none focus:ring-2 focus:ring-slate-300"
                   >
                     Close
                   </button>
