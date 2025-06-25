@@ -9,5 +9,6 @@ public interface RegistrationService {
     RegistrationResponseDTO register(String jwtToken, RegistrationRequestDTO request);
     List<RegistrationResponseDTO> getRegistrationsForUser(String jwtToken);
     List<RegistrationResponseDTO> getRegistrationsForEvent(Long eventId);
+    Integer getRegistrationsCountForEvent(Long eventId);
 }
 

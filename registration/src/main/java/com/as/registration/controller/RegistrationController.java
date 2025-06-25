@@ -33,4 +33,9 @@ public class RegistrationController {
     public ResponseEntity<List<RegistrationResponseDTO>> getEventRegistrations(@PathVariable Long eventId) {
         return ResponseEntity.ok(registrationService.getRegistrationsForEvent(eventId));
     }
+
+    @GetMapping("/event/count/{eventId}")
+    public ResponseEntity<Integer> getEventRegistrationsCount(@PathVariable Long eventId) {
+        return ResponseEntity.ok(registrationService.getRegistrationsCountForEvent(eventId));
+    }
 }

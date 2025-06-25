@@ -32,7 +32,7 @@ export const UserDashboard: React.FC<{ activeTab: string }> = ({ activeTab }) =>
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch user profile info
+
   useEffect(() => {
     if (activeTab === 'profile') {
       const token = localStorage.getItem('token');

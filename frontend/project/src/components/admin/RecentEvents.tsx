@@ -3,7 +3,7 @@ import { Edit, Trash2, Eye } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Event } from '@/types';
-import { useRegistration } from '../../hooks/useRegistration';
+import { useRegistrations } from '../../hooks/useRegistrations';
 import { RegistrationModal } from './RegistrationModal';
 
 interface RecentEventsProps {
@@ -22,7 +22,7 @@ export const RecentEvents: React.FC<RecentEventsProps> = ({
   onDelete,
   onCreate,
 }) => {
-  const { getRegistrationCount } = useRegistration();
+  const { getRegistrationCount } = useRegistrations();
   const [counts, setCounts] = useState<Record<number, number>>({});
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
@@ -95,6 +95,7 @@ export const RecentEvents: React.FC<RecentEventsProps> = ({
       {selectedEventId !== null && (
         <RegistrationModal
           eventId={selectedEventId}
+          isOpen={selectedEventId !== null}
           onClose={() => setSelectedEventId(null)}
         />
       )}

@@ -63,6 +63,11 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .stream().map(this::toDto).toList();
     }
 
+    @Override
+    public Integer getRegistrationsCountForEvent(Long eventId) {
+        return Math.toIntExact(registrationRepository.findByEventId(eventId).size());
+    }
+
 
     private RegistrationResponseDTO toDto(Registration reg) {
         return objectMapper.convertValue(reg , RegistrationResponseDTO.class);
