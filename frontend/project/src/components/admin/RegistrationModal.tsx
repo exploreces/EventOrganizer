@@ -12,9 +12,6 @@ interface Props {
 export const RegistrationModal: React.FC<Props> = ({ eventId, isOpen, onClose }) => {
   const { registrations, loading } = useRegistrations(eventId ?? undefined);
 
-  // Optional: Log the data for debugging
-  console.log("Registrations fetched for modal:", registrations);
-
   const isValidArray = Array.isArray(registrations);
 
   return (
@@ -29,7 +26,7 @@ export const RegistrationModal: React.FC<Props> = ({ eventId, isOpen, onClose })
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -43,24 +40,28 @@ export const RegistrationModal: React.FC<Props> = ({ eventId, isOpen, onClose })
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white p-6 shadow-xl transition-all">
-                <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
-                  Registrations
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100 shadow-2xl transition-all p-6">
+                <Dialog.Title className="text-2xl font-bold text-purple-700 mb-6 text-center">
+                  ✨ Event Registrations
                 </Dialog.Title>
 
                 {loading ? (
-                  <p className="text-gray-600">Loading...</p>
+                  <p className="text-center text-gray-600">Loading...</p>
                 ) : !isValidArray || registrations.length === 0 ? (
-                  <p className="text-gray-500">No registrations found.</p>
+                  <p className="text-center text-gray-500">No registrations found.</p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className="space-y-4">
                     {registrations.map((reg: Registration) => (
-                      <li key={reg.id} className="border p-3 rounded-md bg-gray-50">
-                        <p>
-                          <strong>Email:</strong> {reg.userEmail}
+                      <li
+                        key={reg.id}
+                        className="bg-white rounded-xl p-4 shadow-sm border border-pink-200 hover:shadow-md transition"
+                      >
+                        <p className="text-gray-800">
+                          <span className="font-medium text-pink-600">📧 Email:</span>{' '}
+                          {reg.userEmail}
                         </p>
-                        <p>
-                          <strong>Registered At:</strong>{' '}
+                        <p className="text-gray-700">
+                          <span className="font-medium text-purple-600">🕒 Registered At:</span>{' '}
                           {new Date(reg.registeredAt).toLocaleString()}
                         </p>
                       </li>
@@ -68,10 +69,10 @@ export const RegistrationModal: React.FC<Props> = ({ eventId, isOpen, onClose })
                   </ul>
                 )}
 
-                <div className="mt-6 flex justify-end">
+                <div className="mt-8 flex justify-center">
                   <button
                     onClick={onClose}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-full shadow transition duration-200"
                   >
                     Close
                   </button>

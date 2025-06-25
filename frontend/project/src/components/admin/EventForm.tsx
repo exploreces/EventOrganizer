@@ -20,80 +20,106 @@ export const EventForm: React.FC<EventFormProps> = ({
   onCancel,
 }) => {
   return (
-    <div className="p-8 max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {isEditing ? 'Edit Event' : 'Create New Event'}
+    <div className="p-8 max-w-2xl bg-gradient-to-br from-purple-50/50 to-pink-50/50 min-h-screen">
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+          {isEditing ? '✏️ Edit Event' : '✨ Create New Event'}
         </h1>
-        <p className="text-gray-600">Fill in the details to create or update an event.</p>
+        <p className="text-slate-600">Fill in the details to create or update an event.</p>
+        <div className="h-1 w-16 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full mx-auto mt-4"></div>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
+      {/* Form Card */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-purple-100/50 overflow-hidden">
+        <div className="p-8">
           <form onSubmit={onSubmit} className="space-y-6">
-            <Input
-              label="Event Name"
-              value={formData.name}
-              onChange={(e) => onChange('name', e.target.value)}
-              required
-            />
+            {/* Event Name */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Event Name</label>
+              <input
+                value={formData.name}
+                onChange={(e) => onChange('name', e.target.value)}
+                className="w-full px-4 py-3 bg-purple-50/50 border border-purple-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-200/50 focus:border-purple-400 transition-all"
+                required
+                placeholder="Enter event name..."
+              />
+            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            {/* Description */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => onChange('description', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-purple-50/50 border border-purple-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-200/50 focus:border-purple-400 transition-all resize-none"
                 rows={4}
                 required
+                placeholder="Describe your event..."
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+            {/* Event Type */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Event Type</label>
               <select
                 value={formData.eventType}
                 onChange={(e) => onChange('eventType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-purple-50/50 border border-purple-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-200/50 focus:border-purple-400 transition-all"
                 required
               >
-               <option value="CLUB">CLUB</option>
-                 <option value="CONFERENCE">CONFERENCE</option>
-                 <option value="WORKSHOP">WORKSHOP</option>
-                 <option value="SEMINAR">SEMINAR</option>
-                 <option value="TRAINING">TRAINING</option>
-                 <option value="OTHER">OTHER</option>
+                <option value="CLUB">🎭 CLUB</option>
+                <option value="CONFERENCE">🎯 CONFERENCE</option>
+                <option value="WORKSHOP">🛠️ WORKSHOP</option>
+                <option value="SEMINAR">📚 SEMINAR</option>
+                <option value="TRAINING">🎓 TRAINING</option>
+                <option value="OTHER">📝 OTHER</option>
               </select>
             </div>
 
+            {/* Date Inputs */}
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Start Date"
-                type="datetime-local"
-                value={formData.startDate}
-                onChange={(e) => onChange('startDate', e.target.value)}
-                required
-              />
-              <Input
-                label="End Date"
-                type="datetime-local"
-                value={formData.endDate}
-                onChange={(e) => onChange('endDate', e.target.value)}
-                required
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-700">Start Date</label>
+                <input
+                  type="datetime-local"
+                  value={formData.startDate}
+                  onChange={(e) => onChange('startDate', e.target.value)}
+                  className="w-full px-4 py-3 bg-green-50/50 border border-green-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-200/50 focus:border-green-400 transition-all"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-700">End Date</label>
+                <input
+                  type="datetime-local"
+                  value={formData.endDate}
+                  onChange={(e) => onChange('endDate', e.target.value)}
+                  className="w-full px-4 py-3 bg-green-50/50 border border-green-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-200/50 focus:border-green-400 transition-all"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="flex space-x-4">
-              <Button type="submit" className="flex-1">
+            {/* Action Buttons */}
+            <div className="flex space-x-4 pt-4">
+              <button
+                type="submit"
+                className="flex-1 py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200"
+              >
                 {isEditing ? 'Update Event' : 'Create Event'}
-              </Button>
-              <Button type="button" variant="outline" onClick={onCancel}>
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-3 bg-slate-100 text-slate-600 font-semibold rounded-2xl hover:bg-slate-200 transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-slate-200"
+              >
                 Cancel
-              </Button>
+              </button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
