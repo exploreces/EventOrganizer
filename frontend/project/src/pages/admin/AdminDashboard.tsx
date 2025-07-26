@@ -16,6 +16,7 @@ import { BudgetTracker } from '../../components/admin/BudgetTracker';
 import { FeedbackModal } from '../../components/admin/FeedbackModal';
 import PlannerModal from '../../components/admin/PlannerModal';
 
+
 interface AdminDashboardProps {
   activeTab: string;
 }
@@ -44,7 +45,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
   const getInitialFormData = (): Omit<Event, 'id'> => ({
     name: '',
     description: '',
-    eventType: 'CONFERENCE',
+    eventType: 'CLUB',
     startDate: '',
     endDate: '',
     image: DEFAULT_EVENT_IMAGE,
@@ -126,12 +127,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
     }
   }, [activeTab]);
 
-  // ✅ Added: Auto-open PlannerModal when my-events tab is active
   useEffect(() => {
-    if (activeTab === 'my-events') {
-      openPlannerModal();
+    if (activeTab !== 'my-events' && isPlannerModalOpen) {
+      closePlannerModal();
     }
-  }, [activeTab]);
+  }, [activeTab, isPlannerModalOpen]);
 
   if (showCreateForm) {
     return (
@@ -220,30 +220,180 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
           </div>
         );
 
-
-
-      // ✅ Fixed: Proper my-events case with button to open modal
       case 'my-events':
         return (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">My Event Planners</h2>
-            <p className="text-gray-600 mb-6">Manage planning notes for your events</p>
-
-            <div className="space-y-4">
-              <button
-                onClick={openPlannerModal}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-3 transition-colors"
-              >
-                <Calendar size={20} />
-                Open Event Planner
-              </button>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600">
-                  Click "Open Event Planner" to view your events, manage budgets, and get AI-powered planning assistance.
-                </p>
+          <div className="space-y-6">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">My Events</h2>
+                  <p className="text-gray-600">Manage your events with AI assistance, budget tracking, and notes</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-8 h-8 text-blue-500" />
+                </div>
               </div>
             </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-blue-100">
+                    <Calendar className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Total Events</p>
+                    <p className="text-2xl font-bold text-gray-900">{events.length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-green-100">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Active Plans</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {events.filter(e => new Date(e.endDate) > new Date()).length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-purple-100">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">AI Suggestions</p>
+                    <p className="text-2xl font-bold text-gray-900">Available</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Events List */}
+            {events.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900">My Events</h3>
+                  <p className="text-gray-600 mt-1">Manage your events with AI assistance, budget tracking, and notes</p>
+                </div>
+
+                <div className="divide-y divide-gray-200">
+                  {events.map((event) => (
+                    <div key={event.id} className="p-6 hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                        {/* Event Image */}
+                        <div className="flex-shrink-0">
+                          <img
+                            src={event.image || DEFAULT_EVENT_IMAGE}
+                            alt={event.name}
+                            className="w-24 h-24 lg:w-32 lg:h-32 rounded-lg object-cover shadow-md"
+                          />
+                        </div>
+
+                        {/* Event Details */}
+                        <div className="flex-grow space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                            <div>
+                              <h4 className="text-xl font-bold text-gray-900">{event.name}</h4>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-1">
+                                {event.eventType}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              <div className="flex items-center mb-1">
+                                <Calendar className="w-4 h-4 mr-2" />
+                                <span>Start: {new Date(event.startDate).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Calendar className="w-4 h-4 mr-2" />
+                                <span>End: {new Date(event.endDate).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            {event.description}
+                          </p>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-wrap gap-3 pt-2">
+                            <button
+                              onClick={() => {
+                                // TODO: Open AiModal for this event
+                                console.log('Opening AI Suggestions for event:', event.id);
+                              }}
+                              className="inline-flex items-center px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium rounded-lg transition-colors duration-200 text-sm"
+                            >
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              AI Suggestions
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                // TODO: Open BudgetModal for this event
+                                console.log('Opening Budget for event:', event.id);
+                              }}
+                              className="inline-flex items-center px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 font-medium rounded-lg transition-colors duration-200 text-sm"
+                            >
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              </svg>
+                              Budget
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                // TODO: Open PlannerModal for this event
+                                console.log('Opening Notes for event:', event.id);
+                              }}
+                              className="inline-flex items-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium rounded-lg transition-colors duration-200 text-sm"
+                            >
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Notes
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {events.length === 0 && (
+              <div className="bg-white rounded-lg shadow-sm p-12 border border-gray-200 text-center">
+                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                  <Calendar className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Yet</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Start planning your first event! Create an event and use our AI-powered tools to make it amazing.
+                </p>
+                <button
+                  onClick={handleCreateNew}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  Create Your First Event
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -416,17 +566,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
     }
   };
 
+
   return (
     <>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto p-8">{renderTabContent()}</div>
       </div>
-
-      {/* ✅ Fixed: PlannerModal with proper state management */}
-      <PlannerModal
-        isOpen={isPlannerModalOpen}
-        onClose={closePlannerModal}
-      />
     </>
   );
 };
