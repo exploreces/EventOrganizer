@@ -17,4 +17,3 @@ public class BudgetStatusDTO {
     private BigDecimal totalSpent;
     private BigDecimal difference;
 }
-

@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class PlannerResponseDTO {
 
+    private Long id;
     private String title;
     private String note;
     private Long eventId;

@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/budgets")
@@ -28,6 +29,15 @@ public class BudgetController {
     @PutMapping("/{id}")
     public ResponseEntity<BudgetResponseDTO> updateTasks(@PathVariable Long id, @RequestBody BudgetRequestDTO dto) {
         return ResponseEntity.ok(budgetService.updateBudget(id, dto));
+    }
+
+    @PutMapping("/events/{eventId}/budget")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Void> updateEventBudget(
+            @PathVariable Long eventId,
+            @RequestBody Map<String, Double> payload) {
+        budgetService.updateEventBudget(eventId, payload.get("budget"));
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")

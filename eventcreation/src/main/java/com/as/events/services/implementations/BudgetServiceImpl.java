@@ -75,11 +75,18 @@ public class BudgetServiceImpl implements BudgetService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        BigDecimal assignedBudget = BigDecimal.valueOf(event.getBudget());
+        // Handle null budget safely
+        Double budget = event.getBudget();
+        BigDecimal assignedBudget = (budget != null)
+                ? BigDecimal.valueOf(budget)
+                : BigDecimal.ZERO;  // Default to zero if budget is null
 
         List<Budget> budgetItems = budgetRepository.findByEventId(eventId);
+
+        // Handle null costs by filtering them out
         BigDecimal totalSpent = budgetItems.stream()
                 .map(Budget::getCost)
+                .filter(cost -> cost != null)  // Filter out null costs
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal difference = assignedBudget.subtract(totalSpent);
@@ -89,6 +96,13 @@ public class BudgetServiceImpl implements BudgetService {
                 .totalSpent(totalSpent)
                 .difference(difference)
                 .build();
+    }
+
+    public void updateEventBudget(Long eventId, Double budget) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        event.setBudget(budget);
+        eventRepository.save(event);
     }
 
 

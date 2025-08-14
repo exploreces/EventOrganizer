@@ -39,7 +39,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
   const [feedbackEventId, setFeedbackEventId] = useState<number | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null); // ✅ For profile tab
 
-  // ✅ Fixed: Proper state management for PlannerModal
+  // ✅ Add state variables for each modal type
+  const [aiPlannerEventId, setAiPlannerEventId] = useState<number | null>(null);
+  const [budgetEventId, setBudgetEventId] = useState<number | null>(null);
+  const [plannerEventId, setPlannerEventId] = useState<number | null>(null);
+
   const [isPlannerModalOpen, setIsPlannerModalOpen] = useState(false);
 
   const getInitialFormData = (): Omit<Event, 'id'> => ({
@@ -56,6 +60,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
   // ✅ Added: Functions to handle PlannerModal
   const openPlannerModal = () => setIsPlannerModalOpen(true);
   const closePlannerModal = () => setIsPlannerModalOpen(false);
+
+  // ✅ Added: Functions to close the other modals
+  const closeAiPlanner = () => setAiPlannerEventId(null);
+  const closeBudget = () => setBudgetEventId(null);
+  const closePlanner = () => setPlannerEventId(null);
 
   const handleFormChange = (key: keyof typeof eventForm, value: any) => {
     if (key === 'eventType') {
@@ -327,13 +336,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
                             {event.description}
                           </p>
 
-                          {/* Action Buttons */}
+                          {/* Action Buttons - UPDATED with functionality */}
                           <div className="flex flex-wrap gap-3 pt-2">
                             <button
-                              onClick={() => {
-                                // TODO: Open AiModal for this event
-                                console.log('Opening AI Suggestions for event:', event.id);
-                              }}
+                              onClick={() => setAiPlannerEventId(event.id)}
                               className="inline-flex items-center px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium rounded-lg transition-colors duration-200 text-sm"
                             >
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,10 +349,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
                             </button>
 
                             <button
-                              onClick={() => {
-                                // TODO: Open BudgetModal for this event
-                                console.log('Opening Budget for event:', event.id);
-                              }}
+                              onClick={() => setBudgetEventId(event.id)}
                               className="inline-flex items-center px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 font-medium rounded-lg transition-colors duration-200 text-sm"
                             >
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,10 +359,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
                             </button>
 
                             <button
-                              onClick={() => {
-                                // TODO: Open PlannerModal for this event
-                                console.log('Opening Notes for event:', event.id);
-                              }}
+                              onClick={() => setPlannerEventId(event.id)}
                               className="inline-flex items-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium rounded-lg transition-colors duration-200 text-sm"
                             >
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,6 +572,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => 
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto p-8">{renderTabContent()}</div>
       </div>
+
+      {/* Modal Components - Added here */}
+      {aiPlannerEventId !== null && (
+        <AIPlanner
+          eventId={aiPlannerEventId}
+          isOpen={true}
+          onClose={closeAiPlanner}
+        />
+      )}
+
+      {budgetEventId !== null && (
+        <BudgetTracker
+          eventId={budgetEventId}
+          isOpen={true}
+          onClose={closeBudget}
+        />
+      )}
+
+      {plannerEventId !== null && (
+        <PlannerModal
+          eventId={plannerEventId}
+          isOpen={true}
+          onClose={closePlanner}
+        />
+      )}
+
+      {/* Keep existing feedback modal */}
+      {feedbackEventId !== null && (
+        <FeedbackModal
+          eventId={feedbackEventId}
+          isOpen={feedbackEventId !== null}
+          onClose={() => setFeedbackEventId(null)}
+        />
+      )}
     </>
   );
 };

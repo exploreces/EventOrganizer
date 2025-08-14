@@ -14,6 +14,6 @@ public interface BudgetService {
     BudgetResponseDTO getBudgetById(Long id);
     List<BudgetResponseDTO> getBudgetsForEvent(Long eventId);
     BudgetStatusDTO getBudgetUsageStatus(Long eventId);
-
+    void updateEventBudget(Long eventId, Double budget);
 }
 
